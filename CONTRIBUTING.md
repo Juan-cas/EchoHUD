@@ -71,6 +71,26 @@ Warnings are treated as errors.
 4. No personal data: no profiles, character names, screenshots of a real game,
    or local paths in the commit.
 
+## Publishing a release (maintainers)
+
+Release files are never built on a personal computer. GitHub builds them from
+a tag, so anyone can trace a download back to its source.
+
+1. Make sure `main` is green: the latest **Build** run under the repository's
+   **Actions** tab passed.
+2. Set the new version in two places and commit: `Version` in
+   `src/MainForm.cs` and `AssemblyVersion` in `src/Program.cs`. The tag must
+   match, for example `1.1.0` and `v1.1.0`.
+3. Create and push the tag. In GitHub Desktop: **History**, right-click the
+   commit, **Create Tag...**, name it `v1.1.0`, then **Push origin**.
+4. Wait for the **Build** run of that tag. It creates a **draft** release with
+   `EchoHUD.exe` attached.
+5. Open **Releases** on GitHub, read the draft, describe what the program does
+   and what changed, and press **Publish release**.
+
+Do not upload a file you built yourself to a release, and do not edit a
+published release's files.
+
 ## Testing with a game
 
 Never automate anything involving a game client, not even for testing. Use the

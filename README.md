@@ -103,6 +103,35 @@ More detail:
   checked by hand, and what still needs checking.
 - [CONTRIBUTING.md](CONTRIBUTING.md) - rules for changes.
 
+## Code signing policy
+
+**Current status: downloads are not signed yet.** Windows will show an
+"unknown publisher" warning when you start a downloaded `EchoHUD.exe`. You can
+avoid trusting a download altogether by
+[building the program yourself](docs/BUILDING.md).
+
+The project intends to apply for free code signing from the
+[SignPath Foundation](https://signpath.org/). If the application is accepted,
+this section will be updated and releases will carry this notice: *Free code
+signing provided by [SignPath.io](https://about.signpath.io/), certificate by
+[SignPath Foundation](https://signpath.org/).*
+
+How releases are produced, signed or not:
+
+- **Built from this repository only.** Every release file is built by GitHub
+  Actions from the tagged source, using
+  [.github/workflows/build.yml](.github/workflows/build.yml). Nothing is built
+  on a maintainer's computer, and the build log shows the file's SHA-256
+  fingerprint.
+- **Published by hand.** The automated build only prepares a draft; a
+  maintainer reviews and publishes each release.
+- **Team roles.** Committers, reviewers and approvers:
+  [Juan-cas](https://github.com/Juan-cas). Changes from anyone else are
+  reviewed before they are merged.
+- **Privacy.** This program will not transfer any information to other
+  networked systems unless specifically requested by the user or the person
+  installing or operating it. It contains no networking code at all.
+
 ## License
 
 Copyright (C) 2026 the Echo HUD contributors.
