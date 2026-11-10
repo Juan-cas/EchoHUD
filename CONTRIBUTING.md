@@ -21,6 +21,9 @@ powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 powershell -ExecutionPolicy Bypass -File scripts/test.ps1
 ```
 
+Double-clicking `build.bat` does the same as the first command;
+[docs/BUILDING.md](docs/BUILDING.md) has the walkthrough for newcomers.
+
 No SDK, package manager or internet access is involved. Build output goes to
 `artifacts/`, which Git ignores. If the app is running, build somewhere else:
 `scripts/build.ps1 -OutputDirectory artifacts/try`.

@@ -60,20 +60,16 @@ separate layouts - one per character or screen setup, for example.
 
 ## Building it yourself
 
-You need 64-bit Windows 10 or 11. Nothing else: the C# compiler used here ships
-with Windows.
+You need 64-bit Windows 10 or 11 and nothing else: the C# compiler used here
+ships with Windows, and the build downloads nothing.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/build.ps1
-```
+1. Download this repository (green **Code** button, **Download ZIP**) and
+   extract it.
+2. Double-click **`build.bat`**.
+3. Run **`artifacts\bin\EchoHUD.exe`**.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/test.ps1
-```
-
-The program is written to `artifacts/bin/EchoHUD.exe`. (`-ExecutionPolicy
-Bypass` applies to that one command only; it does not change your system
-settings.)
+The full walkthrough, with troubleshooting, is in
+[docs/BUILDING.md](docs/BUILDING.md).
 
 ## Finding your way around the code
 
@@ -99,6 +95,7 @@ complete list of what the program can do to your system.
 
 More detail:
 
+- [docs/BUILDING.md](docs/BUILDING.md) - build the program from source, step by step.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - how the pieces fit, and why.
 - [docs/SAFETY.md](docs/SAFETY.md) - what the program does and does not do, and
   what is known about game rules.
