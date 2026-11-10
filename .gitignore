@@ -1,0 +1,71 @@
+# ---------------------------------------------------------------------------
+# Build output. Everything the scripts produce goes under artifacts/.
+# ---------------------------------------------------------------------------
+/artifacts/
+/bin/
+/obj/
+*.exe
+*.dll
+*.pdb
+*.zip
+
+# ---------------------------------------------------------------------------
+# Personal data. Profiles, screenshots and recordings can identify a player
+# or show their game, and are never part of the project.
+# ---------------------------------------------------------------------------
+**/profiles/
+**/backups/
+**/recovery/
+last-profile.txt
+*.xml
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.bmp
+*.mp4
+*.mkv
+*.webm
+/screenshots/
+/recordings/
+
+# ---------------------------------------------------------------------------
+# Secrets and machine-specific settings.
+# ---------------------------------------------------------------------------
+.env
+.env.*
+*.key
+*.pem
+*.pfx
+*.log
+*.tmp
+*.bak
+
+# ---------------------------------------------------------------------------
+# Editors, IDEs and operating system clutter.
+# ---------------------------------------------------------------------------
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.swp
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---------------------------------------------------------------------------
+# Personal working material: notes, drafts and local tool workspaces.
+# Any other dot-folder at the top level is treated as personal.
+# Keep these out of the repository; only finished docs belong in docs/.
+# ---------------------------------------------------------------------------
+/.*/
+!/.github/
+/notes/
+/drafts/
+/work/
+/outputs/
+/private/
+*.local.md
+TODO.local*
