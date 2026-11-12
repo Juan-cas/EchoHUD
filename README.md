@@ -195,6 +195,7 @@ complete list of what the program can do to your system.
 | [src/DemoWindow.cs](src/DemoWindow.cs) | The practice source. |
 | [src/Program.cs](src/Program.cs) | Start-up. |
 | [tests/Checks.cs](tests/Checks.cs) | Automated tests. |
+| [site/](site/) | The project website: one static page, no build step. |
 
 More detail:
 

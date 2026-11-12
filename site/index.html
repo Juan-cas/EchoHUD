@@ -1,0 +1,277 @@
+<!doctype html>
+<!--
+  SPDX-License-Identifier: GPL-3.0-only
+
+  The Echo HUD website: one static page, no build step, no tracking, no
+  third-party scripts or fonts. Open this file in a browser to preview it.
+  Styles are in styles.css; the small timer demo is in script.js.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Echo HUD - your interface, repeated where you need it</title>
+  <meta name="description" content="Echo HUD shows live copies of parts of a window in small floating windows, plus manual cooldown timers. Free, open source, display-only. Not affiliated with or approved by CipSoft or BattlEye.">
+  <meta property="og:title" content="Echo HUD">
+  <meta property="og:description" content="Your interface, repeated where you need it. Free, open-source, display-only window mirrors for Windows.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#10151c">
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span>Echo HUD</a>
+  <nav aria-label="Sections">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#safety">Safety</a>
+    <a href="#get">Get it</a>
+    <a class="nav-source" href="https://github.com/Juan-cas/EchoHUD">Source</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- ============================== Hero ============================== -->
+  <section class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">Free and open source for Windows 10 and 11</p>
+      <h1>Your interface, repeated where you need it.</h1>
+      <p class="lead">
+        Echo HUD shows live copies of parts of a window in small floating
+        windows. Draw a box around your cooldowns, your party list or a status
+        bar, and put the copy next to your character so you never have to look
+        away.
+      </p>
+      <div class="actions">
+        <a class="button primary" href="https://github.com/Juan-cas/EchoHUD/releases/latest">Download</a>
+        <a class="button" href="https://github.com/Juan-cas/EchoHUD/blob/main/docs/BUILDING.md">Build it yourself</a>
+      </div>
+      <p class="fine">
+        Not affiliated with, reviewed or approved by CipSoft or BattlEye.
+        Use at your own risk - <a href="#safety">read why</a>.
+      </p>
+    </div>
+
+    <!-- A real screenshot of the practice window that ships with the program,
+         with the selected area and its mirror drawn on top. -->
+    <figure class="stage" aria-label="Screenshot: a row of cooldown icons at the bottom of a window is mirrored next to the character">
+      <div class="window">
+        <div class="window-bar"><span></span><span></span><span></span><em>Practice window</em></div>
+        <div class="window-body">
+          <img src="img/demo.png" width="900" height="540" alt="The practice window: a play field, a party list with health and mana bars, and a row of cooldown icons">
+          <div class="pick" aria-hidden="true"><b>1</b></div>
+          <div class="echo" aria-hidden="true">
+            <img src="img/mirror.png" width="400" height="58" alt="">
+            <b>2</b>
+          </div>
+        </div>
+      </div>
+      <figcaption>
+        <span><b>1</b> Draw a box over what you want.</span>
+        <span><b>2</b> A live copy floats wherever you drag it.</span>
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================== How ============================== -->
+  <section id="how" class="band">
+    <h2>How it works</h2>
+    <p class="section-lead">
+      Windows already knows how to draw a live miniature of any window - that
+      is what you see when you press Alt+Tab. Echo HUD asks Windows for the
+      same thing, cropped to the rectangle you chose.
+    </p>
+    <ol class="steps">
+      <li>
+        <h3>Pick a source</h3>
+        <p>The game window, an OBS windowed projector, or the built-in practice window for trying things out.</p>
+      </li>
+      <li>
+        <h3>Draw a box</h3>
+        <p>The source dims and a magnifier follows your mouse. Drag over the part you want. Hold Shift to pick several.</p>
+      </li>
+      <li>
+        <h3>Place and lock</h3>
+        <p>Drag the mirror where you want it and press Lock. It loses its frame, and clicks pass straight through it.</p>
+      </li>
+    </ol>
+    <p class="callout">
+      Windows does all the drawing, on the graphics card. <strong>Echo HUD never
+      receives the picture</strong>, so there is nothing to capture, analyse or lag.
+    </p>
+  </section>
+
+  <!-- ============================== Features ============================== -->
+  <section id="features">
+    <h2>What you get</h2>
+    <div class="split">
+      <figure class="panel-shot">
+        <img src="img/panel.png" width="390" height="550" loading="lazy" alt="The Echo HUD control panel: a source selector, an Add region button, one row per mirror with size and opacity sliders, one row per timer, and a profile selector">
+        <figcaption>The whole program is this one panel.</figcaption>
+      </figure>
+      <div class="features">
+        <article>
+          <h3>Live mirrors</h3>
+          <p>Resize them, fade them, give them a highlight border. They follow the source in real time.</p>
+        </article>
+        <article>
+          <h3>Only the bars</h3>
+          <p>Pick each health bar separately, or box two rows and press R to repeat the spacing down the list. Nothing shows between them.</p>
+        </article>
+        <article>
+          <h3>Pixel-precise</h3>
+          <p>A magnifier while selecting, and arrow keys afterwards to move or resize the mirrored area one pixel at a time.</p>
+        </article>
+        <article>
+          <h3>Snapping and groups</h3>
+          <p>Mirrors click into place beside each other. Shift+drag moves a group, Ctrl+drag moves everything.</p>
+        </article>
+        <article>
+          <h3>Profiles</h3>
+          <p>One layout per character or screen setup, saved automatically. Export a layout to share it.</p>
+        </article>
+        <article>
+          <h3>Stays out of the way</h3>
+          <p>Hotkeys to lock and to show or hide, a notification-area icon, and an option to show mirrors only while the game is in front.</p>
+        </article>
+        <article>
+          <h3>Four languages</h3>
+          <p>English, Español, Português and Polski.</p>
+        </article>
+        <article>
+          <h3>Small and readable</h3>
+          <p>One 150&nbsp;KB file, no installer. About 5,000 lines of commented C#, one topic per file.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== Timers ============================== -->
+  <section id="timers" class="band">
+    <h2>Cooldown timers you start yourself</h2>
+    <p class="section-lead">
+      For anything with a long cooldown, add a timer and give it a hotkey.
+      Press the hotkey when you use the item; the timer counts down, then tells
+      you how long it has been ready.
+    </p>
+    <div class="timer-demo">
+      <button class="ring" id="ring" type="button" aria-label="Demo timer. Press to start a ten second countdown.">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="ring-track" cx="60" cy="60" r="46"></circle>
+          <circle class="ring-arc" id="ring-arc" cx="60" cy="60" r="46" transform="rotate(-90 60 60)"></circle>
+        </svg>
+        <span class="ring-time" id="ring-time">0:10</span>
+        <span class="ring-name" id="ring-name">Potion</span>
+      </button>
+      <button class="bar" id="bar" type="button" aria-label="Demo timer drawn as a bar. Press to start a ten second countdown.">
+        <span class="bar-name" id="bar-name">Ring</span>
+        <span class="bar-time" id="bar-time">0:10</span>
+        <span class="bar-track"><span class="bar-fill" id="bar-fill"></span></span>
+      </button>
+      <p class="timer-hint" id="timer-hint">Try it: click a timer. (The real ones are started with a hotkey.)</p>
+    </div>
+    <p class="callout">
+      A timer is a stopwatch, <strong>not a cooldown reader</strong>. It cannot
+      know when you used an item, because Echo HUD does not watch the game or
+      your keyboard. That is deliberate.
+    </p>
+  </section>
+
+  <!-- ============================== Safety ============================== -->
+  <section id="safety">
+    <h2>Safety, stated honestly</h2>
+    <div class="safety">
+      <div>
+        <h3>What it never does</h3>
+        <ul class="never">
+          <li>Read or write another program's memory</li>
+          <li>Inject code, install hooks or load drivers</li>
+          <li>Send keys, clicks or messages to the game</li>
+          <li>Listen to your keyboard or mouse</li>
+          <li>Capture or analyse screen pixels</li>
+          <li>Read game files or network traffic</li>
+          <li>Connect to the internet</li>
+          <li>Automate anything</li>
+        </ul>
+        <p class="fine">
+          You do not have to take this on trust:
+          <a href="https://github.com/Juan-cas/EchoHUD/blob/main/src/Native.cs">one short file</a>
+          lists every system call the program makes.
+        </p>
+      </div>
+      <div class="notice">
+        <h3>What nobody can promise you</h3>
+        <p>
+          Echo HUD is built to stay clearly on the display-only side of the
+          line. Even so, <strong>it has not been reviewed or approved by
+          CipSoft or BattlEye</strong>.
+        </p>
+        <p>
+          Tibia Customer Support was asked about it. Their position is that
+          they do not assess or approve individual third-party programs, that
+          being purely visual does not make a feature approved, and that anyone
+          using third-party software does so at their own risk.
+        </p>
+        <p>
+          If that risk is not acceptable to you, do not run it alongside the
+          game.
+        </p>
+        <a class="button" href="https://github.com/Juan-cas/EchoHUD/blob/main/docs/SAFETY.md">Read the full safety notes</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== Get it ============================== -->
+  <section id="get" class="band">
+    <h2>Get Echo HUD</h2>
+    <div class="get">
+      <article>
+        <h3>Download</h3>
+        <p>
+          A single <code>EchoHUD.exe</code>, built by GitHub's own machines
+          from the public source. It is not signed, so Windows shows an
+          "unknown publisher" warning the first time.
+        </p>
+        <a class="button primary" href="https://github.com/Juan-cas/EchoHUD/releases/latest">Go to the download page</a>
+      </article>
+      <article>
+        <h3>Or build it yourself</h3>
+        <p>
+          Download the source, double-click <code>build.bat</code>, press
+          Enter. It uses the compiler that is already part of Windows - nothing
+          to install, about a minute.
+        </p>
+        <a class="button" href="https://github.com/Juan-cas/EchoHUD/blob/main/docs/BUILDING.md">Step-by-step guide</a>
+      </article>
+    </div>
+    <p class="status">
+      <strong>Project status: complete.</strong> Version 1.2.0 is the final
+      planned version; no further development is planned. The code stays
+      public under the GPL-3.0, and you are free to fork it.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <p>
+    Echo HUD is free software under the
+    <a href="https://github.com/Juan-cas/EchoHUD/blob/main/LICENSE">GNU General Public License, version 3</a>.
+    It comes with no warranty.
+  </p>
+  <p>
+    Tibia is a trademark of CipSoft GmbH. BattlEye, OBS Studio and Windows
+    belong to their owners and are mentioned only to describe compatibility.
+    This project is not affiliated with or endorsed by any of them. The
+    screenshots show the program's own practice window; the site contains no
+    game artwork.
+  </p>
+  <p>This page uses no cookies, analytics or third-party scripts.</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+/* SPDX-License-Identifier: GPL-3.0-only
+ *
+ * Styles for the Echo HUD website. The colours are the program's own
+ * (see src/Theme.cs), so the page and the screenshots match.
+ */
+
+:root {
+  --bg: #10151c;
+  --band: #141b24;
+  --surface: #1a222d;
+  --raised: #29313e;
+  --text: #e8edf2;
+  --muted: #93a0b0;
+  --accent: #2dd4bf;
+  --on-accent: #06231f;
+  --amber: #ffb020;
+  --red: #f87171;
+  --radius: 12px;
+  --page: 1120px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.6 "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+h1, h2, h3 { line-height: 1.2; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.1rem, 5vw, 3.3rem); letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.6rem, 3.4vw, 2.2rem); letter-spacing: -0.01em; }
+h3 { font-size: 1.08rem; }
+p { margin: 0; }
+code { font: 0.92em Consolas, "Cascadia Mono", monospace; background: var(--raised); padding: 0.1em 0.4em; border-radius: 5px; }
+
+/* ---------------------------------------------------------------- layout */
+
+section, .nav, footer {
+  padding-left: max(20px, calc((100vw - var(--page)) / 2));
+  padding-right: max(20px, calc((100vw - var(--page)) / 2));
+}
+
+section { padding-top: 84px; padding-bottom: 84px; }
+.band { background: var(--band); }
+
+.section-lead { color: var(--muted); max-width: 66ch; margin-top: 14px; font-size: 1.08rem; }
+
+/* ---------------------------------------------------------------- nav */
+
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding-top: 14px; padding-bottom: 14px;
+  background: rgba(16, 21, 28, 0.86);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--raised);
+}
+
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 600; text-decoration: none; font-size: 1.1rem; }
+
+/* The logo: a square and its echo. */
+.brand-mark {
+  width: 18px; height: 18px; border-radius: 4px; background: var(--accent);
+  box-shadow: 6px 6px 0 -1px rgba(45, 212, 191, 0.35);
+  margin-right: 6px;
+}
+
+.nav nav { display: flex; gap: 22px; flex-wrap: wrap; }
+.nav nav a { color: var(--muted); text-decoration: none; font-size: 0.95rem; }
+.nav nav a:hover { color: var(--text); }
+.nav nav .nav-source { color: var(--accent); }
+
+/* ---------------------------------------------------------------- buttons */
+
+.button {
+  display: inline-block; padding: 11px 20px; border-radius: 9px;
+  background: var(--raised); color: var(--text);
+  font-weight: 600; text-decoration: none; border: 1px solid transparent;
+  transition: background 0.15s, transform 0.15s;
+}
+.button:hover { background: #364050; transform: translateY(-1px); }
+.button.primary { background: var(--accent); color: var(--on-accent); }
+.button.primary:hover { background: #5eead4; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+
+.fine { color: var(--muted); font-size: 0.9rem; margin-top: 18px; }
+.eyebrow { color: var(--accent); font-weight: 600; font-size: 0.92rem; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 14px; }
+.lead { color: var(--muted); font-size: 1.15rem; margin-top: 20px; max-width: 54ch; }
+
+/* ---------------------------------------------------------------- hero */
+
+.hero {
+  display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 48px; align-items: center;
+  padding-top: 72px;
+}
+
+.stage { margin: 0; }
+
+.window {
+  border-radius: var(--radius); overflow: hidden;
+  border: 1px solid var(--raised);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  background: #000;
+}
+.window-bar { display: flex; align-items: center; gap: 7px; padding: 9px 12px; background: var(--surface); }
+.window-bar span { width: 10px; height: 10px; border-radius: 50%; background: var(--raised); }
+.window-bar em { margin-left: 8px; color: var(--muted); font-style: normal; font-size: 0.8rem; }
+.window-body { position: relative; }
+
+/* The selected area. Position and size are percentages of the 900x540
+   screenshot: the crop used was x 14, y 465, 400 x 58 pixels. */
+.pick {
+  position: absolute; left: 1.56%; top: 86.1%; width: 44.44%; height: 10.74%;
+  border: 2px dashed var(--amber); border-radius: 3px;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+/* The mirror, floating next to the "character" (the yellow dot). */
+.echo {
+  position: absolute; left: 27%; top: 36%; width: 44.44%;
+  border: 2px solid var(--accent); border-radius: 3px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  animation: float 5s ease-in-out infinite;
+}
+
+.pick b, .echo b, .stage figcaption b {
+  display: inline-grid; place-items: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  font-size: 0.78rem; font-weight: 700;
+}
+.pick b { position: absolute; left: -11px; top: -11px; background: var(--amber); color: #2b1c00; }
+.echo b { position: absolute; left: -11px; top: -11px; background: var(--accent); color: var(--on-accent); }
+
+.stage figcaption { display: flex; flex-wrap: wrap; gap: 8px 26px; margin-top: 16px; color: var(--muted); font-size: 0.92rem; }
+.stage figcaption b { margin-right: 6px; }
+.stage figcaption span:first-child b { background: var(--amber); color: #2b1c00; }
+.stage figcaption span:last-child b { background: var(--accent); color: var(--on-accent); }
+
+@keyframes pulse { 50% { border-color: rgba(255, 176, 32, 0.35); } }
+@keyframes float { 50% { transform: translateY(-6px); } }
+
+/* ---------------------------------------------------------------- steps */
+
+.steps {
+  list-style: none; padding: 0; margin: 40px 0 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px;
+  counter-reset: step;
+}
+.steps li {
+  counter-increment: step;
+  background: var(--surface); border-radius: var(--radius); padding: 24px;
+  border: 1px solid var(--raised);
+}
+.steps li::before {
+  content: counter(step);
+  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent); color: var(--on-accent); font-weight: 700; margin-bottom: 14px;
+}
+.steps p { color: var(--muted); margin-top: 8px; font-size: 0.98rem; }
+
+.callout {
+  margin-top: 32px; padding: 18px 22px; max-width: 76ch;
+  border-left: 3px solid var(--accent); background: rgba(45, 212, 191, 0.07);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* ---------------------------------------------------------------- features */
+
+.split { display: grid; grid-template-columns: minmax(0, 390px) minmax(0, 1fr); gap: 48px; align-items: start; margin-top: 40px; }
+
+.panel-shot { margin: 0; }
+.panel-shot img { border-radius: var(--radius); border: 1px solid var(--raised); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5); }
+.panel-shot figcaption { color: var(--muted); font-size: 0.9rem; margin-top: 12px; text-align: center; }
+
+.features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 32px; }
+.features p { color: var(--muted); margin-top: 6px; font-size: 0.98rem; }
+.features h3::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--accent); margin-right: 10px; vertical-align: 2px; }
+
+/* ---------------------------------------------------------------- timers */
+
+.timer-demo { display: flex; flex-wrap: wrap; align-items: center; gap: 28px 40px; margin-top: 40px; }
+
+.ring, .bar { font: inherit; color: var(--text); cursor: pointer; border: 0; padding: 0; }
+
+.ring { position: relative; width: 150px; height: 150px; border-radius: 50%; background: rgba(26, 34, 45, 0.9); }
+.ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ring-track, .ring-arc { fill: none; stroke-width: 12; }
+.ring-track { stroke: var(--raised); }
+.ring-arc { stroke: var(--accent); stroke-linecap: round; stroke-dasharray: 289.03; stroke-dashoffset: 289.03; transition: stroke-dashoffset 0.2s linear, stroke 0.2s; }
+.ring-time { position: absolute; left: 0; right: 0; top: 41px; font-size: 2rem; font-weight: 700; color: var(--muted); }
+.ring-name { position: absolute; left: 0; right: 0; top: 90px; font-size: 0.85rem; color: var(--muted); }
+
+.bar {
+  position: relative; width: 300px; height: 56px; border-radius: 10px;
+  background: rgba(26, 34, 45, 0.9); text-align: left;
+}
+.bar-name { position: absolute; left: 14px; top: 9px; color: var(--muted); }
+.bar-time { position: absolute; right: 14px; top: 6px; font-size: 1.25rem; font-weight: 700; color: var(--muted); }
+.bar-track { position: absolute; left: 12px; right: 12px; bottom: 9px; height: 7px; background: var(--raised); border-radius: 4px; overflow: hidden; }
+.bar-fill { display: block; height: 100%; width: 0; background: #60a5fa; transition: width 0.2s linear, background 0.2s; }
+
+.is-running .ring-time, .is-running .bar-time, .is-done .ring-time, .is-done .bar-time { color: var(--text); }
+.timer-hint { color: var(--muted); font-size: 0.95rem; flex-basis: 100%; }
+
+/* ---------------------------------------------------------------- safety */
+
+.safety { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; margin-top: 40px; align-items: start; }
+
+.never { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 10px; }
+.never li { padding-left: 30px; position: relative; }
+.never li::before {
+  content: ""; position: absolute; left: 2px; top: 0.72em; width: 16px; height: 2px; background: var(--red);
+  transform: rotate(-45deg); box-shadow: 0 0 0 0 transparent;
+}
+.never li::after { content: ""; position: absolute; left: 2px; top: 0.72em; width: 16px; height: 2px; background: var(--red); transform: rotate(45deg); }
+
+.notice { background: var(--surface); border: 1px solid rgba(255, 176, 32, 0.45); border-radius: var(--radius); padding: 26px; }
+.notice h3 { color: var(--amber); }
+.notice p { margin-top: 14px; color: var(--text); }
+.notice .button { margin-top: 20px; }
+
+/* ---------------------------------------------------------------- get */
+
+.get { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 40px; }
+.get article { background: var(--surface); border: 1px solid var(--raised); border-radius: var(--radius); padding: 26px; }
+.get p { color: var(--muted); margin: 10px 0 20px; }
+
+.status { margin-top: 32px; color: var(--muted); max-width: 76ch; }
+.status strong { color: var(--text); }
+
+/* ---------------------------------------------------------------- footer */
+
+footer { padding-top: 40px; padding-bottom: 56px; border-top: 1px solid var(--raised); color: var(--muted); font-size: 0.88rem; }
+footer p { max-width: 90ch; margin-top: 10px; }
+
+/* ---------------------------------------------------------------- small screens */
+
+@media (max-width: 900px) {
+  .hero, .split, .safety, .get { grid-template-columns: minmax(0, 1fr); }
+  .steps { grid-template-columns: minmax(0, 1fr); }
+  .panel-shot { max-width: 390px; margin: 0 auto; }
+  section { padding-top: 60px; padding-bottom: 60px; }
+  .hero { padding-top: 44px; gap: 36px; }
+}
+
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  .nav nav { gap: 14px; }
+  .nav nav a:not(.nav-source) { display: none; }
+  .features { grid-template-columns: minmax(0, 1fr); }
+  .bar { width: 100%; max-width: 300px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .pick, .echo { animation: none; }
+  .button, .ring-arc, .bar-fill { transition: none; }
+}
