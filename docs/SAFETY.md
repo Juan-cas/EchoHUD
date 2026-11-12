@@ -7,7 +7,10 @@ can promise you.
 ## The honest summary
 
 - Echo HUD is designed to stay clearly on the "display only" side of the line.
-- **It has not been reviewed or approved by CipSoft or BattlEye.** Nobody
+- **It is not approved or endorsed by CipSoft or BattlEye.** Tibia Customer
+  Support has said its use is *tolerated* - which is not approval, and which
+  they later declined to extend to individual features (details under "What
+  is known about the rules"). BattlEye has not commented at all. Nobody
   outside those companies can guarantee that any third-party tool is safe.
 - You use it at your own risk. If that risk is not acceptable to you, do not
   run it alongside the game.
@@ -90,18 +93,33 @@ of date. Check the current official rules yourself.
 - That reply was about *their* program, not this one. Echo HUD uses the same
   kind of Windows feature, but similarity is not approval.
 
-- The maintainer of Echo HUD also wrote to Tibia Customer Support, describing
-  this program, its timers and hotkeys, and asking whether a display-only
-  colour filter (see below) would be acceptable. In summary, the answer was
-  that Customer Support **does not assess or approve individual third-party
-  programs, their features or their source code**; that a feature being
-  purely visual **does not make it approved**; that players who use
-  third-party software do so **at their own risk**; and that no guarantee can
-  be given that any program is permissible or compatible with Tibia and
-  BattlEye. Echo HUD was therefore neither approved nor objected to.
+The maintainer of Echo HUD wrote to Tibia Customer Support twice. Both answers
+are summarised here, not quoted, and neither is an endorsement.
 
-So: a display-only overlay of this kind appears to be tolerated today, tolerance
-can be withdrawn, and an anti-cheat can change what it objects to at any time.
+- **First answer, about the program as first described to them (the window
+  mirrors).** Customer Support said they had looked at the software and found
+  that it does **not provide an unfair advantage**, that they are **not
+  opposed to its use**, and that its use is **tolerated**. They added that
+  this is **not an official endorsement or approval**, that any problem
+  arising from using it is **entirely at the player's own risk**, and that
+  they cannot give support for problems that occur while using it.
+- **Second answer, about the later additions.** A follow-up described the
+  cooldown timers, the hotkeys and the other features added afterwards, and
+  asked whether a display-only colour filter (see below) would be acceptable.
+  This time the answer was that Customer Support **does not assess or approve
+  individual third-party programs, their features or their source code**;
+  that a feature being purely visual **does not make it approved**; that
+  players who use third-party software do so **at their own risk**; and that
+  no guarantee can be given that any program is permissible or compatible
+  with Tibia and BattlEye.
+
+Read together: the mirroring tool was called tolerated; the features added
+later were neither accepted nor objected to, because Customer Support does not
+judge features one by one; and nothing was said on behalf of BattlEye.
+
+So: a display-only overlay of this kind is tolerated today, tolerance is not
+approval and can be withdrawn, and an anti-cheat can change what it objects to
+at any time.
 
 ## The colour filter that was not built
 
