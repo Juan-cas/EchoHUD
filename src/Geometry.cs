@@ -6,6 +6,7 @@
 // and reasoned about without running the app.
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace EchoHud
@@ -56,6 +57,67 @@ namespace EchoHud
                 Clamp(region.CropX, 0, current.Width - width),
                 Clamp(region.CropY, 0, current.Height - height),
                 width, height);
+        }
+
+        /// <summary>
+        /// Moves a region's crop by (dx, dy) source pixels, or - with
+        /// <paramref name="resize"/> - grows or shrinks it by that much from
+        /// its bottom-right corner. The crop always stays inside the source.
+        /// This is what the arrow keys do on an unlocked mirror.
+        /// </summary>
+        internal static void Nudge(MirrorRegion region, int dx, int dy, bool resize)
+        {
+            if (resize)
+            {
+                region.CropWidth = Clamp(region.CropWidth + dx, 1, region.SourceWidth - region.CropX);
+                region.CropHeight = Clamp(region.CropHeight + dy, 1, region.SourceHeight - region.CropY);
+            }
+            else
+            {
+                region.CropX = Clamp(region.CropX + dx, 0, region.SourceWidth - region.CropWidth);
+                region.CropY = Clamp(region.CropY + dy, 0, region.SourceHeight - region.CropHeight);
+            }
+        }
+
+        /// <summary>
+        /// The next rectangle of an evenly spaced series: the same size as
+        /// <paramref name="last"/>, as far from it as it is from
+        /// <paramref name="previous"/>. With no previous rectangle the series
+        /// continues straight down, touching. Returns an empty rectangle if
+        /// the result would not fit inside the source.
+        /// </summary>
+        internal static Rectangle NextInSeries(Rectangle? previous, Rectangle last, Size bounds)
+        {
+            int dx = previous.HasValue ? last.X - previous.Value.X : 0;
+            int dy = previous.HasValue ? last.Y - previous.Value.Y : last.Height;
+            if (dx == 0 && dy == 0) return Rectangle.Empty;
+            Rectangle next = new Rectangle(last.X + dx, last.Y + dy, last.Width, last.Height);
+            bool fits = next.Left >= 0 && next.Top >= 0 && next.Right <= bounds.Width && next.Bottom <= bounds.Height;
+            return fits ? next : Rectangle.Empty;
+        }
+
+        /// <summary>
+        /// Where a dragged rectangle should land so that its edges line up
+        /// with nearby rectangles. Each axis snaps on its own, to the closest
+        /// edge within <paramref name="threshold"/> pixels, and only against
+        /// rectangles that are close on the other axis too - a mirror far away
+        /// must not pull this one around.
+        /// </summary>
+        internal static Point Snap(Rectangle moving, IList<Rectangle> others, int threshold)
+        {
+            int bestX = threshold + 1, bestY = threshold + 1, shiftX = 0, shiftY = 0;
+            foreach (Rectangle other in others)
+            {
+                bool nearVertically = moving.Top <= other.Bottom + threshold && moving.Bottom >= other.Top - threshold;
+                bool nearHorizontally = moving.Left <= other.Right + threshold && moving.Right >= other.Left - threshold;
+                if (nearVertically)
+                    foreach (int delta in new[] { other.Left - moving.Left, other.Right - moving.Left, other.Left - moving.Right, other.Right - moving.Right })
+                        if (Math.Abs(delta) < bestX) { bestX = Math.Abs(delta); shiftX = delta; }
+                if (nearHorizontally)
+                    foreach (int delta in new[] { other.Top - moving.Top, other.Bottom - moving.Top, other.Top - moving.Bottom, other.Bottom - moving.Bottom })
+                        if (Math.Abs(delta) < bestY) { bestY = Math.Abs(delta); shiftY = delta; }
+            }
+            return new Point(moving.X + (bestX <= threshold ? shiftX : 0), moving.Y + (bestY <= threshold ? shiftY : 0));
         }
 
         /// <summary>Size of the mirrored picture for a crop shown at a zoom percentage.</summary>

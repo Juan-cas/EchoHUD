@@ -31,10 +31,14 @@ receives the picture, so there is nothing to capture, analyse or lag.
 2. Press **Add region**. The source dims; **click and drag** a box over what you
    want. Release to accept, Esc or right-click to cancel.
 3. A mirror appears. While **unlocked** you can:
-   - drag it anywhere,
+   - drag it anywhere - it clicks into place beside other mirrors and at the
+     edges of the screen,
    - drag its bottom-right corner to resize it,
-   - right-click it for size, opacity, a highlight border, re-cropping,
-     renaming and deleting.
+   - fine-tune it with the keyboard (click the mirror first; its frame turns
+     white): **arrow keys** move the mirrored area one pixel, **Shift+arrows**
+     make the area larger or smaller, **Ctrl+arrows** move the mirror itself,
+   - right-click it for size, opacity, a highlight border, groups,
+     re-cropping, renaming and deleting.
 4. Press the **lock** button. Mirrors lose their frame, stay where they are, and
    mouse clicks pass straight through them to whatever is underneath.
 
@@ -44,6 +48,84 @@ all mirrors at once.
 
 Everything is saved automatically. **Profiles** (bottom of the panel) are
 separate layouts - one per character or screen setup, for example.
+
+While you draw a box, a **magnifier** next to the mouse shows the pixels under
+it enlarged, which makes thin things such as health bars much easier to hit.
+
+### Settings (the gear button)
+
+| Setting | What it does |
+|---|---|
+| Show mirrors only while the game is in front | Mirrors and timers disappear when you switch to your browser or another program, and come back with the game. Off by default. |
+| Snap mirrors to each other | Turn off to place mirrors freely. |
+| Minimize to the notification area | Minimizing hides the panel next to the clock instead of on the taskbar. Click the icon to bring it back; right-click it to lock, show/hide or exit. |
+| Start with Windows | Starts Echo HUD hidden in the notification area when you sign in. |
+| Hotkey to lock / unlock, hotkey to show / hide | Key combinations that work while you are in the game. Like timer hotkeys, Windows gives them to Echo HUD *instead of* the game, so pick ones you do not use in game. |
+| Language | English, Español, Português or Polski. Follows Windows by default. |
+| Import / export a profile | Save a layout as a file to back it up or share it, and load one you were given. |
+| Look for a new version | Opens the project's download page in your web browser. Echo HUD itself never goes online. |
+
+Starting Echo HUD a second time does not open a second copy: it brings the
+panel of the running one back on screen.
+
+### Showing only the bars (hiding a panel's background)
+
+Echo HUD cannot erase a background colour - that would mean reading the
+picture, which it never does (see [docs/SAFETY.md](docs/SAFETY.md)). What you
+can do is mirror only the parts you care about:
+
+1. Press **Add region** and drag a tight box around the first health bar.
+2. **Hold Shift while you release the mouse.** The box stays lit and the
+   selector stays open. Drag the next bar, again with Shift, and so on.
+3. Release the last one without Shift, or press Enter.
+
+**Shortcut for lists:** after boxing the first two rows this way, press **R**.
+Echo HUD adds a third box the same distance below the second, and another for
+each further press - five party members are two drags and three key presses.
+(It repeats the spacing *you* drew; it does not look at the picture.)
+
+You get one slim mirror per bar, arranged exactly as they were in the game,
+with nothing but your screen showing between them. Areas picked together form
+a **group**:
+
+- **hold Shift while dragging** one of them to move the whole group,
+- **hold Ctrl while dragging** to move every mirror and timer at once,
+- right-click a mirror or timer and use **Group** to add it to a group, start
+  a new one, or take it out.
+
+If a box is a pixel off, click its mirror and use the arrow keys (see above) -
+you see the result immediately in the mirror itself.
+
+### Cooldown timers
+
+For anything with a long cooldown - a potion, a ring, a spell - add a timer:
+
+1. Press the **stopwatch** button next to the lock. A circle appears beside the
+   panel, with a row for it in the list.
+2. Set the **duration** (clock button): pick one from the list, or choose
+   *Other...* and type `10` for ten minutes, or `10:30`.
+3. Choose a **hotkey** (keyboard button), for example Ctrl+F5.
+4. Drag the circle where you want it and lock.
+
+When you use the item, press the timer's hotkey. The ring empties as time
+passes and shows the time left; when it is over it turns solid, says *Ready*
+and plays a short sound (optional). You can also start a timer with the play
+button in its row, or by double-clicking the circle while unlocked.
+
+Right-click a timer (while unlocked) for more:
+
+- **Shape:** a circle, or a slim bar that fits under an action bar.
+- **Colour:** five colours, to tell timers apart at a glance.
+- **Sound when ready:** none, the standard Windows sound, or your own `.wav`
+  file - a different sound per timer lets you tell them apart by ear.
+- **Count up after it is ready:** instead of just *Ready*, the timer shows how
+  long it has been ready, for example `+0:42`.
+
+> **Why a separate key?** Echo HUD does not watch the game or your keyboard, so
+> it cannot know when you used an item. And Windows gives a registered hotkey
+> to Echo HUD *instead of* the game, so the timer's key cannot be the same key
+> that uses the item. Use a combination you do not need in game and press it
+> right after the item's key.
 
 ### Good to know
 
@@ -55,8 +137,11 @@ separate layouts - one per character or screen setup, for example.
 - **Resizing the game window** can move interface elements; if a mirror shows
   the wrong spot afterwards, use *Choose a different area*.
 - Your data lives in `%LOCALAPPDATA%\EchoHUD`. Profiles are plain XML files
-  you can back up or share. They contain region positions and names you typed -
-  never a character name.
+  you can back up or share (gear button, *Export*). They contain region
+  positions and names you typed - never a character name. The location of a
+  custom timer sound is left out of exported files.
+- The Portuguese and Polish texts were not written by native speakers.
+  Corrections are welcome: everything is in [src/Strings.cs](src/Strings.cs).
 
 ## Building it yourself
 
@@ -65,30 +150,35 @@ ships with Windows, and the build downloads nothing.
 
 1. Download this repository (green **Code** button, **Download ZIP**) and
    extract it.
-2. Double-click **`build.bat`**.
-3. Run **`artifacts\bin\EchoHUD.exe`**.
+2. Double-click **`build.bat`**. It asks where to put the program; press
+   Enter for your Desktop.
+3. Run **`EchoHUD.exe`** from there.
 
 The full walkthrough, with troubleshooting, is in
 [docs/BUILDING.md](docs/BUILDING.md).
 
 ## Finding your way around the code
 
-About 2,400 lines of C#, one topic per file. Start with `Native.cs`: it is the
+About 5,200 lines of C#, one topic per file. Start with `Native.cs`: it is the
 complete list of what the program can do to your system.
 
 | File | What it is |
 |---|---|
 | [src/Native.cs](src/Native.cs) | Every Windows API the program calls, and the list of those it must never call. |
 | [src/Sources.cs](src/Sources.cs) | Finding the game window, OBS projectors and the demo window. |
-| [src/Model.cs](src/Model.cs) | `MirrorRegion` and `Profile` - the data that is saved. |
+| [src/Model.cs](src/Model.cs) | `MirrorRegion`, `CooldownTimer`, `Profile` and `Settings` - the data that is saved. |
 | [src/Geometry.cs](src/Geometry.cs) | Rectangle maths, free of side effects and fully unit tested. |
-| [src/Store.cs](src/Store.cs) | Loading and saving profiles safely. |
+| [src/Store.cs](src/Store.cs) | Loading, saving, importing and exporting profiles safely; the settings file. |
 | [src/MirrorWindow.cs](src/MirrorWindow.cs) | One floating mirror: thumbnail, drag, resize, lock, menu. |
 | [src/RegionSelector.cs](src/RegionSelector.cs) | The "draw a box" overlay. |
 | [src/MainForm.cs](src/MainForm.cs) | The control panel; ties everything together. |
 | [src/RegionRow.cs](src/RegionRow.cs) | One row of the region list. |
+| [src/TimerWindow.cs](src/TimerWindow.cs) | One floating countdown, as a circle or a bar. |
+| [src/TimerRow.cs](src/TimerRow.cs) | One row of the timer list. |
+| [src/Hotkeys.cs](src/Hotkeys.cs) | Hotkeys: storing, describing and asking for a key combination. |
+| [src/Autostart.cs](src/Autostart.cs) | The optional "Start with Windows" entry. |
 | [src/Theme.cs](src/Theme.cs) | Colours, fonts, icons and small custom controls. |
-| [src/Strings.cs](src/Strings.cs) | All user-visible text (English and Spanish). |
+| [src/Strings.cs](src/Strings.cs) | All user-visible text (English, Spanish, Portuguese, Polish). |
 | [src/DemoWindow.cs](src/DemoWindow.cs) | The practice source. |
 | [src/Program.cs](src/Program.cs) | Start-up. |
 | [tests/Checks.cs](tests/Checks.cs) | Automated tests. |

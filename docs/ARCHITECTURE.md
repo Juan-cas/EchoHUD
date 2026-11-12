@@ -52,6 +52,8 @@ Consequences worth knowing:
 | `RegionSelector` | Modal overlay for drawing a crop rectangle. |
 | `MainForm` | Wires the above together and runs the housekeeping timer. |
 | `RegionRow` | The list row that edits one `MirrorRegion`. |
+| `TimerWindow`, `TimerRow` | A floating countdown circle and its list row. |
+| `Hotkeys` | Converts and asks for the key combinations that start timers. |
 | `Store` | Profile files. |
 | `Geometry` | All coordinate maths, as pure functions. |
 | `Native` | Every P/Invoke declaration. |
@@ -126,6 +128,98 @@ thumbnail.
 The selector receives the mouse clicks itself. Nothing is forwarded to the
 source window.
 
+### Picking several areas
+
+Holding Shift while releasing the mouse keeps the selector open. Each accepted
+rectangle keeps its own lit thumbnail, and a new one is registered for the next
+drag; Enter finishes. All mirrors created from one session start at the same
+offset from their source position, so their arrangement is preserved. This is
+how a panel's background is "removed" without touching pixels: only the wanted
+parts are mirrored.
+
+Pressing R adds `Geometry.NextInSeries(previous, last)`: a rectangle as far
+from the last one as that is from the one before. A `LoupeWindow` (a small
+click-through window holding one more thumbnail, enlarged five times) follows
+the mouse as a magnifier.
+
+What happens when one of the resulting mirrors is dragged is described under
+"Fine-tuning, snapping and groups" below.
+
+## Cooldown timers
+
+A `TimerWindow` is the one place where the program draws a picture itself.
+
+- **State** is three fields: `running`, `finished` and `endsAt`. It is not
+  saved; closing the program forgets running countdowns.
+- **Drawing:** the circle is painted into a bitmap with transparency and
+  handed to Windows with `UpdateLayeredWindow` (`Native.PresentOwnBitmap`),
+  which gives smooth round edges. Mirrors cannot use this technique and
+  timers cannot use thumbnails, which is why the two window types differ.
+  The picture is redrawn only when the text or the ring would visibly change.
+- **Starting:** by hotkey, by double-click (unlocked), or from the row.
+  Starting a running timer restarts it.
+- **Hotkeys:** `MainForm.RegisterHotkeys` calls `RegisterHotKey` once per timer
+  with an id equal to the timer's list position plus one. Windows then sends
+  `WM_HOTKEY` with that id to the main window. Registrations are dropped and
+  redone whenever the list changes, and released while the "press a key"
+  dialog is open so the current combination can be typed into it.
+
+There is no code path from anything observed on screen to a timer. See
+SAFETY.md for why that matters.
+
+### Shapes, colours and sounds
+
+`CooldownTimer.Shape` selects `DrawCircle` or `DrawBar`; `Colour` is an index
+into `Theme.TimerColours`. With `CountUp`, a finished timer keeps its clock
+running and shows the time since it finished.
+
+A custom sound is a path in `CooldownTimer.SoundFile`. Because profiles are
+shared between players, that path is untrusted: `IsPlayableSoundPath` accepts
+only a `.wav` on a local drive letter (no UNC shares, no URLs - `SoundPlayer`
+would happily download one), `Store.Import` drops the path altogether, and
+`Store.Export` leaves it out because it usually contains a user name.
+
+## Fine-tuning, snapping and groups
+
+- **Arrow keys** (`MirrorWindow.ProcessCmdKey`) call `Geometry.Nudge`, which
+  moves or resizes the saved crop by one source pixel and keeps it inside the
+  source. Ctrl+arrows move the window instead. The mirror that has keyboard
+  focus draws a white frame.
+- **Snapping** (`MirrorWindow.SnapWhileMoving`): while Windows drags the
+  window it sends `WM_MOVING` with the proposed rectangle. We replace it with
+  `Geometry.Snap(...)` of the position implied by the mouse. Two details
+  matter: the position is recomputed from the mouse every time (otherwise a
+  snapped window never lets go), and the rectangle that snaps is the
+  *picture*, not the editing frame, so mirrors end up flush once locked.
+  `MainForm.SnapTargetsFor` supplies the other mirrors, the timers and the
+  screen's working area.
+- **Groups** are just a name stored on each mirror and timer (`Group`).
+  Areas picked in one selector session get a fresh name. On drop,
+  `MainForm.MoveCompanions` moves the other members (Shift) or everything
+  (Ctrl) by the same distance.
+
+## Settings, the tray icon and starting hidden
+
+`Settings` (Model.cs) holds what belongs to the computer rather than to a
+profile; `Store.LoadSettings` falls back to defaults on any problem.
+
+- **Only while the game is in front:** `MainForm.GameInFront`, evaluated on
+  every tick, checks whether the foreground window is one of ours, the
+  current source, or matches `SourcePolicy.IsTibiaWindow`.
+- **Lock and show/hide hotkeys** are registered beside the timers' with fixed
+  ids (100 and 101).
+- **Tray icon:** a `NotifyIcon`. With "minimize to the notification area",
+  `OnResize` hides the panel when it is minimized. Mirrors and timers are
+  separate top-level windows and are not affected.
+- **Start with Windows:** `Autostart` writes one value under the current
+  user's `Run` key with the argument `--minimized`; `MainForm.SetVisibleCore`
+  then swallows the first "show".
+- **Second start:** `Program` holds a named mutex. A second copy signals a
+  named event and exits; the first copy waits on that event and shows its
+  panel. No window messages are sent between processes.
+- **Language:** `Strings.Use(settings.Language)` runs before any window is
+  built, which is why a change applies at the next start.
+
 ## The housekeeping timer
 
 `MainForm.Tick` runs every 250 ms:
@@ -172,7 +266,9 @@ promise in SAFETY.md.
 ## Ideas not built yet
 
 - Hide mirrors automatically while the game is not the foreground window.
-- Snap mirrors to each other and move them as a group.
-- Global hotkeys for lock and show/hide.
+- Remembering a running countdown across a restart.
+- Snapping for timers themselves (mirrors snap to timers, not the reverse).
+- Showing the group name in the panel's rows.
+- Changing language without a restart.
 - Import/export buttons for profiles (the files can already be copied by hand).
 - More languages in `Strings.cs`.

@@ -13,8 +13,9 @@ about a minute and needs no programming knowledge.
 ## The short version
 
 1. Download the code and unpack it.
-2. Double-click **`build.bat`**.
-3. Run **`artifacts\bin\EchoHUD.exe`**.
+2. Double-click **`build.bat`** and press Enter when it asks where to put the
+   program (Enter means: on your Desktop).
+3. Run **`EchoHUD.exe`** from your Desktop.
 
 The rest of this page explains each step and what to do if something goes wrong.
 
@@ -40,8 +41,18 @@ folders named `src`, `scripts` and `docs`.
 
 **Double-click `build.bat`.**
 
-A black window opens, prints `Building Echo HUD...` and, a few seconds later,
-`Done.` It then opens the folder that contains your freshly built program.
+A black window opens and asks:
+
+```text
+Where should EchoHUD.exe be placed?
+  - Press Enter to put it on your Desktop (C:\Users\you\Desktop)
+  - or type or paste a folder, for example D:\Games\Tools
+Folder:
+```
+
+Press **Enter** for the Desktop, or type a folder (it is created if it does not
+exist) and press Enter. A few seconds later the window prints `Done.` and File
+Explorer opens with your freshly built `EchoHUD.exe` selected.
 
 If Windows shows a blue **"Windows protected your PC"** box or an
 **"Open File - Security Warning"**, that is Windows being careful with a script
@@ -55,24 +66,27 @@ Open PowerShell in the project folder (in File Explorer: hold Shift,
 right-click an empty area, **Open PowerShell window here**) and run:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/build.ps1
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -CopyTo Desktop
 ```
 
+`-CopyTo` takes `Desktop` or any folder; leave it out to build into
+`artifacts\bin` only, or use `-Ask` to be asked like `build.bat` does.
 `-ExecutionPolicy Bypass` applies to this one command only. It does not change
 any setting on your computer.
 
 ## Step 3 - Run it
 
-Your program is at:
+Your program is where you asked for it - by default **`EchoHUD.exe` on your
+Desktop**. A second copy is always left in the project folder at:
 
 ```text
 artifacts\bin\EchoHUD.exe
 ```
 
-Double-click it. You can copy `EchoHUD.exe` anywhere you like - the Desktop, a
-USB stick - it is a single file and needs nothing beside it. (The `LICENSE`
-file next to it is the legal text; keep it with the program if you pass the
-program on to someone else.)
+Double-click it. You can copy `EchoHUD.exe` anywhere you like - another folder,
+a USB stick - it is a single file and needs nothing beside it. (The `LICENSE`
+file in `artifacts\bin` is the legal text; pass it along with the program if
+you give the program to someone else.)
 
 The first time you start it, Windows SmartScreen may warn about an
 "unrecognized app". That is normal for a program you built yourself, because it
@@ -93,9 +107,11 @@ The last line should say `0 failed`.
 
 ## Updating to a newer version
 
-1. Close Echo HUD.
+1. Close Echo HUD completely: right-click its icon in the notification area
+   (next to the clock) and choose **Exit**.
 2. Get the new code (download the ZIP again, or pull in Git / GitHub Desktop).
-3. Double-click `build.bat` again.
+3. Double-click `build.bat` again and give the same folder as before, so the
+   old program is replaced.
 
 Your profiles are stored separately in `%LOCALAPPDATA%\EchoHUD` and are kept.
 
@@ -104,7 +120,8 @@ Your profiles are stored separately in `%LOCALAPPDATA%\EchoHUD` and are kept.
 | What you see | What it means and what to do |
 |---|---|
 | `.NET Framework 4.x (64-bit) was not found` | Very rare on Windows 10/11. Install ".NET Framework 4.8 Runtime" from Microsoft's website, or run Windows Update, then try again. 32-bit Windows is not supported. |
-| `Compilation failed` followed by `error CS0016` or "the file is being used by another process" | Echo HUD is still running, so its file cannot be replaced. Close it (and check it is not hidden behind other windows) and build again. |
+| `Compilation failed` followed by `error CS0016` or "the file is being used by another process" | Echo HUD is still running, so its file cannot be replaced. Close it (it may be hidden in the notification area next to the clock: right-click its icon, **Exit**) and build again. |
+| `Could not write ...EchoHUD.exe` | The same cause, for the copy in the folder you chose. Exit Echo HUD and build again. |
 | `Compilation failed` with other `error CS....` lines | The code itself has a problem. If you did not change anything, download a fresh copy; if it still fails, please open an issue and paste the error lines. |
 | `running scripts is disabled on this system` | You ran `scripts\build.ps1` directly. Use `build.bat` or the full command shown above instead. |
 | The window flashes and closes immediately | You probably started it from inside the ZIP. Extract the ZIP first (Step 1). |
@@ -125,5 +142,8 @@ For the curious, `scripts/build.ps1` does three things:
 2. Compiles every `.cs` file in `src\` into one program,
    `artifacts\bin\EchoHUD.exe`, with the icon from `assets\`.
 3. Copies the `LICENSE` file next to it.
+4. If you gave a folder (or pressed Enter for the Desktop), copies
+   `EchoHUD.exe` there.
 
-It writes only inside the `artifacts` folder, which you can delete at any time.
+Apart from that one copy, it writes only inside the `artifacts` folder, which
+you can delete at any time.

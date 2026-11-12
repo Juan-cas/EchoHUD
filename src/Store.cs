@@ -6,6 +6,7 @@
 //
 //   profiles\<name>.xml   one file per profile, plain XML, safe to back up
 //   last-profile.txt      name of the profile to open next time
+//   settings.xml          preferences of this computer (see Settings in Model.cs)
 //
 // Set the ECHOHUD_DATA_DIR environment variable to use another folder
 // (the tests do this so they never touch real profiles).
@@ -38,6 +39,7 @@ namespace EchoHud
 
         static string ProfilesFolder { get { return Path.Combine(DataRoot, "profiles"); } }
         static string LastProfileFile { get { return Path.Combine(DataRoot, "last-profile.txt"); } }
+        static string SettingsFile { get { return Path.Combine(DataRoot, "settings.xml"); } }
 
         /// <summary>
         /// Profile names become file names, so only a conservative character
@@ -149,6 +151,84 @@ namespace EchoHud
             {
                 throw new InvalidDataException("Profile file could not be read.", error);
             }
+        }
+
+        // ------------------------------------------------------------------
+        // Sharing profiles
+        // ------------------------------------------------------------------
+
+        /// <summary>
+        /// Writes a copy of a profile to a file the user chose, for backup or
+        /// for giving to someone else. Paths of sound files are left out:
+        /// they usually contain a Windows user name and mean nothing on
+        /// another computer.
+        /// </summary>
+        internal static void Export(Profile profile, string path)
+        {
+            Profile copy = Parse(Serialize(profile));
+            copy.Name = profile.Name;
+            foreach (CooldownTimer timer in copy.Timers) timer.SoundFile = "";
+            File.WriteAllText(path, Serialize(copy), new UTF8Encoding(false));
+        }
+
+        /// <summary>
+        /// Reads a profile from any file, validates it like every other
+        /// profile, and gives it a name that does not collide with a saved
+        /// one (based on the file name). Sound file paths are dropped. The
+        /// result is not saved yet.
+        /// </summary>
+        internal static Profile Import(string path)
+        {
+            if (new FileInfo(path).Length > MaxFileBytes) throw new InvalidDataException("Profile file is too large.");
+            Profile profile = Parse(File.ReadAllText(path, Encoding.UTF8));
+            foreach (CooldownTimer timer in profile.Timers) timer.SoundFile = ""; // never play a file named by someone else
+            string wanted = Path.GetFileNameWithoutExtension(path);
+            if (!IsValidName(wanted)) wanted = IsValidName(profile.Name) ? profile.Name : "Imported";
+            string name = wanted;
+            for (int i = 2; Exists(name); i++)
+            {
+                string suffix = " " + i;
+                name = wanted.Substring(0, Math.Min(wanted.Length, MaxNameLength - suffix.Length)).TrimEnd() + suffix;
+            }
+            profile.Name = name;
+            return profile;
+        }
+
+        // ------------------------------------------------------------------
+        // Settings
+        // ------------------------------------------------------------------
+
+        /// <summary>Loads the settings; a missing or damaged file simply gives the defaults.</summary>
+        internal static Settings LoadSettings()
+        {
+            try
+            {
+                if (!File.Exists(SettingsFile) || new FileInfo(SettingsFile).Length > MaxFileBytes) return new Settings();
+                XmlReaderSettings safe = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
+                using (XmlReader reader = XmlReader.Create(new StringReader(File.ReadAllText(SettingsFile, Encoding.UTF8)), safe))
+                {
+                    Settings settings = (Settings)new XmlSerializer(typeof(Settings)).Deserialize(reader);
+                    if (settings == null) return new Settings();
+                    settings.Validate();
+                    return settings;
+                }
+            }
+            catch (Exception)
+            {
+                return new Settings(); // preferences are never worth failing to start over
+            }
+        }
+
+        internal static void SaveSettings(Settings settings)
+        {
+            settings.Validate();
+            Directory.CreateDirectory(DataRoot);
+            XmlWriterSettings format = new XmlWriterSettings { Indent = true, Encoding = new UTF8Encoding(false) };
+            string temporary = SettingsFile + ".tmp";
+            using (XmlWriter writer = XmlWriter.Create(temporary, format))
+                new XmlSerializer(typeof(Settings)).Serialize(writer, settings);
+            if (File.Exists(SettingsFile)) File.Replace(temporary, SettingsFile, null);
+            else File.Move(temporary, SettingsFile);
         }
 
         /// <summary>Name of the profile used last time, or null on first run.</summary>

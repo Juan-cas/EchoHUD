@@ -10,15 +10,21 @@
 //   beyond the compositor's own.
 //
 // TWO MODES
-//   Unlocked  The window has a coloured frame, can be dragged anywhere,
-//             resized from its bottom-right corner, and right-clicked for
-//             options.
+//   Unlocked  The window has a coloured frame, can be dragged anywhere
+//             (clicking into place beside other mirrors), resized from its
+//             bottom-right corner, and right-clicked for options. The mirror
+//             clicked last has a white frame and listens to the arrow keys:
+//               arrows        move the mirrored AREA one pixel
+//               Shift+arrows  make the area one pixel larger or smaller
+//               Ctrl+arrows   move the mirror WINDOW one pixel
 //   Locked    The frame disappears and the window becomes "click-through":
 //             Windows delivers mouse clicks to whatever is underneath, as if
 //             the mirror were not there. It also never takes keyboard focus.
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace EchoHud
@@ -32,14 +38,39 @@ namespace EchoHud
         Size lastSourceSize;
         bool locked;
         bool applying;          // true while WE move/resize the window, to ignore our own events
+        bool active;            // this mirror has keyboard focus (unlocked only)
+        Point grab;             // where inside the window the mouse took hold of it, for snapping
+        ToolStripMenuItem groupItem;
         readonly ContextMenuStrip menu;
         ToolStripMenuItem borderItem;
 
         /// <summary>The user moved, resized or restyled this mirror; the profile needs saving.</summary>
         internal event EventHandler Edited;
+
+        /// <summary>The user dragged this mirror by (dx, dy) pixels. Raised before Edited.</summary>
+        internal event Action<int, int> Dragged;
         internal event EventHandler RecropRequested;
         internal event EventHandler RenameRequested;
         internal event EventHandler DeleteRequested;
+
+        /// <summary>Raised as the right-click menu opens, so the owner can list the groups.</summary>
+        internal event Action<ToolStripMenuItem> GroupMenuOpening;
+
+        /// <summary>
+        /// Supplied by the owner: the rectangles this mirror may snap to while
+        /// dragged, or null when snapping is switched off.
+        /// </summary>
+        internal Func<List<Rectangle>> SnapTargets;
+
+        /// <summary>Where the mirrored picture (without the editing frame) sits on the desktop.</summary>
+        internal Rectangle PictureBounds
+        {
+            get
+            {
+                Size picture = Geometry.Output(Crop().Size, Spec.ScalePercent);
+                return new Rectangle(Spec.X, Spec.Y, picture.Width, picture.Height);
+            }
+        }
 
         internal MirrorWindow(MirrorRegion region)
         {
@@ -158,7 +189,7 @@ namespace EchoHud
                 lastSourceSize = SourceSize();
                 Size picture = Geometry.Output(Crop().Size, Spec.ScalePercent);
                 int frame = Frame;
-                BackColor = locked ? Theme.Highlight : Theme.Accent;
+                BackColor = FrameColour;
                 // Spec.X/Y is the corner of the PICTURE, so it does not jump
                 // when the frame appears or disappears.
                 Bounds = new Rectangle(Spec.X - frame, Spec.Y - frame, picture.Width + 2 * frame, picture.Height + 2 * frame);
@@ -169,6 +200,25 @@ namespace EchoHud
             }
             ApplyOpacity();
             UpdateThumbnail();
+        }
+
+        Color FrameColour
+        {
+            get { return locked ? Theme.Highlight : active ? Theme.TextColor : Theme.Accent; }
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            active = true;
+            BackColor = FrameColour;
+        }
+
+        protected override void OnDeactivate(EventArgs e)
+        {
+            base.OnDeactivate(e);
+            active = false;
+            BackColor = FrameColour;
         }
 
         void ApplyOpacity()
@@ -227,8 +277,64 @@ namespace EchoHud
                     return;
                 }
                 if (m.Msg == Native.WmNcLButtonDblClk) return; // would otherwise maximise the window
+                if (m.Msg == Native.WmEnterSizeMove)
+                {
+                    Point cursor = Cursor.Position;
+                    grab = new Point(cursor.X - Left, cursor.Y - Top);
+                }
+                if (m.Msg == Native.WmMoving && SnapWhileMoving(m.LParam))
+                {
+                    m.Result = new IntPtr(1); // "we changed the rectangle"
+                    return;
+                }
             }
             base.WndProc(ref m);
+        }
+
+        /// <summary>
+        /// While the user drags the window, Windows asks where it should go
+        /// next. We answer with the nearest position that lines the PICTURE
+        /// (not the editing frame) up with a neighbour, so that mirrors sit
+        /// flush against each other once locked.
+        ///
+        /// The position is worked out from the mouse each time rather than
+        /// from Windows' proposal; otherwise a snapped window would stay
+        /// stuck to its neighbour.
+        /// </summary>
+        bool SnapWhileMoving(IntPtr proposed)
+        {
+            List<Rectangle> targets = SnapTargets == null ? null : SnapTargets();
+            if (targets == null) return false;
+            Native.RECT rect = (Native.RECT)Marshal.PtrToStructure(proposed, typeof(Native.RECT));
+            int width = rect.Right - rect.Left, height = rect.Bottom - rect.Top, frame = Frame;
+            Point cursor = Cursor.Position;
+            Rectangle picture = new Rectangle(cursor.X - grab.X + frame, cursor.Y - grab.Y + frame, width - 2 * frame, height - 2 * frame);
+            Point snapped = Geometry.Snap(picture, targets, Theme.Px(8));
+            rect.Left = snapped.X - frame;
+            rect.Top = snapped.Y - frame;
+            rect.Right = rect.Left + width;
+            rect.Bottom = rect.Top + height;
+            Marshal.StructureToPtr(rect, proposed, false);
+            return true;
+        }
+
+        /// <summary>Arrow keys fine-tune the mirror that was clicked last. See the top of this file.</summary>
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            Keys code = keyData & Keys.KeyCode;
+            int dx = code == Keys.Left ? -1 : code == Keys.Right ? 1 : 0;
+            int dy = code == Keys.Up ? -1 : code == Keys.Down ? 1 : 0;
+            if (locked || (dx == 0 && dy == 0)) return base.ProcessCmdKey(ref msg, keyData);
+
+            if ((keyData & Keys.Control) != 0)
+            {
+                Spec.X += dx;
+                Spec.Y += dy;
+            }
+            else Geometry.Nudge(Spec, dx, dy, (keyData & Keys.Shift) != 0);
+            ApplyRegion();
+            NotifyChanged();
+            return true;
         }
 
         protected override void OnResize(EventArgs e)
@@ -244,9 +350,11 @@ namespace EchoHud
             if (applying || locked) return;
             int frame = Frame;
             Spec.ScalePercent = Geometry.ScaleForWidth(ClientSize.Width - 2 * frame, Crop().Width);
+            int dx = Left + frame - Spec.X, dy = Top + frame - Spec.Y;
             Spec.X = Left + frame;
             Spec.Y = Top + frame;
             ApplyRegion(); // snap the window to the exact proportions of the crop
+            if ((dx != 0 || dy != 0) && Dragged != null) Dragged(dx, dy);
             NotifyChanged();
         }
 
@@ -286,14 +394,22 @@ namespace EchoHud
 
             strip.Items.Add(size);
             strip.Items.Add(opacity);
+            groupItem = Dialogs.Submenu(strip, Strings.Get("menu.group"));
+            groupItem.DropDownItems.Add("-"); // placeholder so the arrow shows; filled when the menu opens
+
             strip.Items.Add(borderItem);
+            strip.Items.Add(groupItem);
             strip.Items.Add(new ToolStripSeparator());
             strip.Items.Add(Strings.Get("menu.recrop"), null, delegate { Raise(RecropRequested); });
             strip.Items.Add(Strings.Get("menu.rename"), null, delegate { Raise(RenameRequested); });
             strip.Items.Add(Strings.Get("menu.hide"), null, delegate { Spec.Visible = false; NotifyChanged(); });
             strip.Items.Add(new ToolStripSeparator());
             strip.Items.Add(Strings.Get("menu.delete"), null, delegate { Raise(DeleteRequested); });
-            strip.Opening += delegate { borderItem.Checked = Spec.Border; };
+            strip.Opening += delegate
+            {
+                borderItem.Checked = Spec.Border;
+                if (GroupMenuOpening != null) GroupMenuOpening(groupItem);
+            };
             return strip;
         }
 

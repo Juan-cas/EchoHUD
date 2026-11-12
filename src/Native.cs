@@ -6,16 +6,21 @@
 // Everything the app does outside of normal .NET code goes through here,
 // and the list is deliberately short:
 //
-//   * user32  - read window metadata (title, class, size, position) and
-//               style OUR OWN windows.
+//   * user32  - read window metadata (title, class, size, position, and
+//               which window is in front), style OUR OWN windows, and
+//               register global hotkeys that Windows delivers to THIS
+//               program (to start timers, lock, and show/hide).
+//   * gdi32   - hand a picture WE drew (a timer circle) to one of our own
+//               windows so it can have smooth, transparent edges.
 //   * dwmapi  - ask the Windows compositor (DWM) to draw a live thumbnail of
 //               another window inside one of OUR windows. This is the same
 //               mechanism as the Alt+Tab and taskbar previews.
 //
 // What is intentionally NOT here, and must never be added:
 //   ReadProcessMemory / WriteProcessMemory / OpenProcess, any injection or
-//   hook API (SetWindowsHookEx, CreateRemoteThread...), any input API
-//   (SendInput, PostMessage/SendMessage to other windows, keybd_event...),
+//   hook API (SetWindowsHookEx, CreateRemoteThread...), any API that SENDS
+//   input (SendInput, PostMessage/SendMessage to other windows, keybd_event...)
+//   or LISTENS to keys meant for other programs (keyboard hooks, raw input),
 //   and any screen-pixel capture API (BitBlt, PrintWindow, CopyFromScreen).
 //   The program never reads a single pixel of the game: Windows composes the
 //   image, we only say where to put it.
@@ -82,6 +87,8 @@ namespace EchoHud
         internal const int WmNcHitTest = 0x0084;
         internal const int WmNcRButtonUp = 0x00A5;
         internal const int WmNcLButtonDblClk = 0x00A3;
+        internal const int WmMoving = 0x0216;        // our window is being dragged; we may adjust where it lands
+        internal const int WmEnterSizeMove = 0x0231; // the user started dragging or resizing our window
         internal const int HtCaption = 2;
         internal const int HtBottomRight = 17;
 
@@ -100,8 +107,75 @@ namespace EchoHud
         [DllImport("user32.dll")] static extern bool ClientToScreen(IntPtr window, ref POINT point);
         [DllImport("user32.dll")] internal static extern uint GetWindowThreadProcessId(IntPtr window, out uint processId);
 
+        // Which window the user is working in right now. Used only to hide
+        // the mirrors while another program is in front (an optional setting).
+        [DllImport("user32.dll")] internal static extern IntPtr GetForegroundWindow();
+
         // ---- styling of our own windows ----
         [DllImport("user32.dll")] internal static extern bool SetLayeredWindowAttributes(IntPtr ownWindow, uint colorKey, byte alpha, uint flags);
+
+        // ---- global hotkeys delivered to this program ----
+        // RegisterHotKey asks Windows to send US a message when the user
+        // presses a chosen combination. It is not a keyboard hook: we are told
+        // about that one combination only and see no other keystrokes. Note
+        // that Windows gives the combination to us INSTEAD of the focused
+        // program, so users must pick one they do not need elsewhere.
+        internal const int WmHotKey = 0x0312;
+        internal const uint ModAlt = 0x1, ModControl = 0x2, ModShift = 0x4, ModNoRepeat = 0x4000;
+        [DllImport("user32.dll")] internal static extern bool RegisterHotKey(IntPtr ownWindow, int id, uint modifiers, uint virtualKey);
+        [DllImport("user32.dll")] internal static extern bool UnregisterHotKey(IntPtr ownWindow, int id);
+
+        // ---- presenting our own drawing with per-pixel transparency ----
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct SIZE
+        {
+            public int Width, Height;
+        }
+
+        /// <summary>BLENDFUNCTION from wingdi.h.</summary>
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        internal struct BlendFunction
+        {
+            public byte Operation, Flags, ConstantAlpha, AlphaFormat;
+        }
+
+        internal const int UlwAlpha = 0x2;
+        internal const byte AcSrcAlpha = 0x1;
+        [DllImport("user32.dll")] static extern IntPtr GetDC(IntPtr window);
+        [DllImport("user32.dll")] static extern int ReleaseDC(IntPtr window, IntPtr deviceContext);
+        [DllImport("gdi32.dll")] static extern IntPtr CreateCompatibleDC(IntPtr deviceContext);
+        [DllImport("gdi32.dll")] static extern bool DeleteDC(IntPtr deviceContext);
+        [DllImport("gdi32.dll")] static extern IntPtr SelectObject(IntPtr deviceContext, IntPtr gdiObject);
+        [DllImport("gdi32.dll")] static extern bool DeleteObject(IntPtr gdiObject);
+        [DllImport("user32.dll")] static extern bool UpdateLayeredWindow(IntPtr ownWindow, IntPtr screenDc, ref POINT position, ref SIZE size,
+            IntPtr sourceDc, ref POINT sourceOrigin, int colorKey, ref BlendFunction blend, int flags);
+
+        /// <summary>
+        /// Shows a picture we drew ourselves as the entire content of one of
+        /// our own layered windows, honouring the picture's transparency.
+        /// Only ever writes to our window; nothing is read from the screen.
+        /// </summary>
+        internal static void PresentOwnBitmap(IntPtr ownWindow, Bitmap picture, Point position, byte opacity)
+        {
+            IntPtr screen = GetDC(IntPtr.Zero), memory = CreateCompatibleDC(screen);
+            IntPtr handle = IntPtr.Zero, previous = IntPtr.Zero;
+            try
+            {
+                handle = picture.GetHbitmap(Color.FromArgb(0));
+                previous = SelectObject(memory, handle);
+                POINT where = new POINT { X = position.X, Y = position.Y }, origin = new POINT();
+                SIZE size = new SIZE { Width = picture.Width, Height = picture.Height };
+                BlendFunction blend = new BlendFunction { ConstantAlpha = opacity, AlphaFormat = AcSrcAlpha };
+                UpdateLayeredWindow(ownWindow, screen, ref where, ref size, memory, ref origin, 0, ref blend, UlwAlpha);
+            }
+            finally
+            {
+                if (previous != IntPtr.Zero) SelectObject(memory, previous);
+                if (handle != IntPtr.Zero) DeleteObject(handle);
+                DeleteDC(memory);
+                ReleaseDC(IntPtr.Zero, screen);
+            }
+        }
 
         // ---- Desktop Window Manager thumbnails ----
         [DllImport("dwmapi.dll")] internal static extern int DwmRegisterThumbnail(IntPtr destination, IntPtr source, out IntPtr thumbnail);

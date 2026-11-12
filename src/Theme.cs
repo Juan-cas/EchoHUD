@@ -26,6 +26,16 @@ namespace EchoHud
         internal static readonly Color Warning = Color.FromArgb(255, 198, 100);
         internal static readonly Color Highlight = Color.FromArgb(255, 176, 32);
 
+        /// <summary>Colours a timer can be drawn in; the index is saved as CooldownTimer.Colour.</summary>
+        internal static readonly Color[] TimerColours =
+        {
+            Accent,
+            Color.FromArgb(255, 176, 32),
+            Color.FromArgb(248, 113, 113),
+            Color.FromArgb(96, 165, 250),
+            Color.FromArgb(192, 132, 252)
+        };
+
         static float scale = 1f;
         static bool iconFontAvailable;
 
@@ -69,6 +79,11 @@ namespace EchoHud
         internal static string IconDelete { get { return Icon("", "x"); } }
         internal static string IconRename { get { return Icon("", "ab"); } }
         internal static string IconCrop { get { return Icon("", "[]"); } }
+        internal static string IconPlay { get { return Icon("\uE768", ">"); } }
+        internal static string IconClock { get { return Icon("\uE823", "t"); } }
+        internal static string IconKeyboard { get { return Icon("\uE765", "k"); } }
+        internal static string IconSettings { get { return Icon("\uE713", "="); } }
+        internal static string IconTimer { get { return Icon("\uE916", "T"); } }
     }
 
     /// <summary>A small square flat button showing one icon. Always give it a tooltip.</summary>
@@ -250,6 +265,16 @@ namespace EchoHud
                 BackColor = Theme.Surface,
                 Font = Theme.Body
             };
+        }
+
+        /// <summary>Gives a sub-menu the same dark look as the menu it belongs to.</summary>
+        internal static ToolStripMenuItem Submenu(ContextMenuStrip strip, string text)
+        {
+            ToolStripMenuItem parent = new ToolStripMenuItem(text);
+            parent.DropDown.BackColor = Theme.Surface;
+            parent.DropDown.ForeColor = Theme.TextColor;
+            parent.DropDown.Renderer = strip.Renderer;
+            return parent;
         }
 
         /// <summary>Asks the user for one short line of text. Returns null if cancelled.</summary>
