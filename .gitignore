@@ -69,3 +69,7 @@ desktop.ini
 /private/
 *.local.md
 TODO.local*
+
+# The website's own pictures are the exception: they show only the
+# program's practice window and control panel.
+!site/img/*.png
