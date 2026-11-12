@@ -263,12 +263,17 @@ removing a background colour or drawing outlines around text. They would
 require reading pixels, which conflicts with the "never captures pixels"
 promise in SAFETY.md.
 
-## Ideas not built yet
+## Ideas that were not built
 
-- Hide mirrors automatically while the game is not the foreground window.
+The project is complete and no further development is planned (see the
+README). For anyone continuing it in a fork, these were the open ideas:
+
 - Remembering a running countdown across a restart.
 - Snapping for timers themselves (mirrors snap to timers, not the reverse).
 - Showing the group name in the panel's rows.
 - Changing language without a restart.
-- Import/export buttons for profiles (the files can already be copied by hand).
-- More languages in `Strings.cs`.
+- More languages in `Strings.cs`, and review of the Portuguese and Polish texts.
+
+Deliberately rejected, and not to be revived under this project's safety
+rules: removing a background colour from a mirror, or anything else that
+reads the source's pixels. See SAFETY.md.

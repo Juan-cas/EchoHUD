@@ -90,8 +90,38 @@ of date. Check the current official rules yourself.
 - That reply was about *their* program, not this one. Echo HUD uses the same
   kind of Windows feature, but similarity is not approval.
 
+- The maintainer of Echo HUD also wrote to Tibia Customer Support, describing
+  this program, its timers and hotkeys, and asking whether a display-only
+  colour filter (see below) would be acceptable. In summary, the answer was
+  that Customer Support **does not assess or approve individual third-party
+  programs, their features or their source code**; that a feature being
+  purely visual **does not make it approved**; that players who use
+  third-party software do so **at their own risk**; and that no guarantee can
+  be given that any program is permissible or compatible with Tibia and
+  BattlEye. Echo HUD was therefore neither approved nor objected to.
+
 So: a display-only overlay of this kind appears to be tolerated today, tolerance
 can be withdrawn, and an anti-cheat can change what it objects to at any time.
+
+## The colour filter that was not built
+
+Players asked for a way to hide the grey background of a panel such as the
+party list, leaving only names and bars. Doing that properly needs a colour
+filter: capture the picture of the selected area, make one colour transparent,
+and show the result.
+
+This was **decided against, permanently**. It would mean reading the game's
+pixels, and "the program never holds an image of the game" is the most
+important promise in this document and the easiest one to verify. No official
+answer was available to weigh against that (see above), so the promise stays.
+The supported alternative is to mirror only the parts you want - see "Showing
+only the bars" in the README.
+
+## Project status
+
+Echo HUD has reached what it set out to do, and its maintainer plans no
+further development. The rules in the next section still apply to anyone who
+forks the project and wants to keep the claims in this document true.
 
 ## Rules for people changing the code
 

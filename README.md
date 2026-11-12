@@ -13,6 +13,19 @@ It is free, open source (GPL-3.0), has no ads, no accounts and no network code.
 > officially approved, and you use it at your own risk. Read
 > [docs/SAFETY.md](docs/SAFETY.md) before using it with a game.
 
+## Project status: complete
+
+Echo HUD does what it was meant to do, and version 1.2.0 is its final planned
+version. **The maintainer does not plan any further development** - no new
+features, and no schedule for updates.
+
+- The program keeps working as it is; nothing in it expires or phones home.
+- The code stays public under the GPL-3.0. You are free to fork it and take it
+  further, as long as your version stays under the same license.
+- One feature was considered and deliberately **not** built: removing a
+  background colour from a mirror. It would require reading the game's pixels,
+  which this program never does. See [docs/SAFETY.md](docs/SAFETY.md).
+
 ## How it works, in one paragraph
 
 Windows already knows how to draw a live miniature of any window - that is what
@@ -200,9 +213,10 @@ More detail:
 avoid trusting a download altogether by
 [building the program yourself](docs/BUILDING.md).
 
-The project intends to apply for free code signing from the
-[SignPath Foundation](https://signpath.org/). If the application is accepted,
-this section will be updated and releases will carry this notice: *Free code
+The project may still apply for free code signing from the
+[SignPath Foundation](https://signpath.org/) for its final version. If an
+application is accepted, this section will be updated and releases will carry
+this notice: *Free code
 signing provided by [SignPath.io](https://about.signpath.io/), certificate by
 [SignPath Foundation](https://signpath.org/).*
 

@@ -1,8 +1,13 @@
 # Contributing
 
-Thanks for wanting to help. The project aims to stay **small, readable and
-display-only**. A change that makes it harder to understand or audit needs a
-strong reason.
+> **Project status: complete.** Echo HUD reached what it was intended to do
+> with version 1.2.0, and the maintainer plans no further development. Pull
+> requests and feature requests may go unanswered. You are welcome to fork the
+> project under the GPL-3.0; the notes below describe how the code is meant
+> to be kept, and remain useful for a fork.
+
+The project aims to stay **small, readable and display-only**. A change that
+makes it harder to understand or audit needs a strong reason.
 
 ## Before you start
 
